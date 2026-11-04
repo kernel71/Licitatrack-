@@ -6,6 +6,7 @@ public class CriarProcessoDTO
 {
     [Required]
     [MaxLength(50)]
+    [RegularExpression(@"^\d{3}/\d{4}$", ErrorMessage = "Informe o número no formato 001/2026.")]
     public string Numero { get; set; } = string.Empty;
 
     [Required]

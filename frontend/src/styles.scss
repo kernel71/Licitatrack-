@@ -1,0 +1,26 @@
+:root {
+  --primary-color: #303FA0;
+  --primary-hover: #253285;
+  --bg-color: #FAFBFE;
+  --card-bg: #FFFFFF;
+  --border-color: #E1E5ED;
+  --text-dark: #1A2035;
+  --text-secondary: #5A6A85;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  line-height: 1.5;
+}

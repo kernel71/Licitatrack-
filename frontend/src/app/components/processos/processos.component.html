@@ -1,0 +1,100 @@
+<div class="page-container">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Navegação estrutural">
+    <span class="breadcrumb-item">Início</span>
+    <span class="separator">/</span>
+    <span class="breadcrumb-item active">Processos licitatórios</span>
+  </nav>
+
+  <!-- Mensagem de Confirmação de Sucesso -->
+  @if (sucessoMessage()) {
+    <div class="alert alert-success" role="alert">
+      <span class="alert-icon">✅</span>
+      <span class="alert-text">{{ sucessoMessage() }}</span>
+      <button type="button" class="alert-close" (click)="sucessoMessage.set(null)" aria-label="Fechar mensagem">✕</button>
+    </div>
+  }
+
+  <!-- Cabeçalho da Página -->
+  <div class="page-header">
+    <div class="header-titles">
+      <h2 class="page-title">Processos licitatórios</h2>
+      <p class="page-subtitle">Consulte, acompanhe e gerencie todos os processos do município</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/processos/novo" class="btn btn-primary">
+        <span class="btn-icon">➕</span>
+        <span>Novo processo</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Card Principal -->
+  <div class="card">
+    <!-- Estado de Carregamento -->
+    @if (isLoading()) {
+      <div class="state-container loading-state">
+        <div class="spinner"></div>
+        <p class="state-text">Carregando processos licitatórios...</p>
+      </div>
+    }
+
+    <!-- Estado de Erro -->
+    @else if (errorMessage()) {
+      <div class="state-container error-state">
+        <div class="state-icon error-icon">⚠️</div>
+        <h3 class="state-title">Erro ao carregar dados</h3>
+        <p class="state-description">{{ errorMessage() }}</p>
+        <button type="button" class="btn btn-secondary" (click)="carregarProcessos()">
+          <span>🔄</span> Tentar novamente
+        </button>
+      </div>
+    }
+
+    <!-- Estado Vazio (quando não há processos) -->
+    @else if (processos().length === 0) {
+      <div class="state-container empty-state">
+        <div class="state-icon empty-icon">📋</div>
+        <h3 class="state-title">Nenhum processo licitatório cadastrado</h3>
+        <p class="state-description">Ainda não há registros no sistema. Cadastre o primeiro processo para começar.</p>
+        <a routerLink="/processos/novo" class="btn btn-primary">
+          <span>➕</span> Cadastrar primeiro processo
+        </a>
+      </div>
+    }
+
+    <!-- Tabela com Dados -->
+    @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Objeto</th>
+              <th>Modalidade</th>
+              <th>Secretaria</th>
+              <th>Data de abertura</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of processos(); track item.id) {
+              <tr>
+                <td class="font-medium text-primary">{{ item.numero }}</td>
+                <td class="objeto-cell" [title]="item.objeto">{{ item.objeto }}</td>
+                <td>{{ item.modalidade }}</td>
+                <td>{{ item.secretaria }}</td>
+                <td>{{ item.dataAbertura | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getSituacaoClass(item.situacao)">
+                    {{ item.situacao }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

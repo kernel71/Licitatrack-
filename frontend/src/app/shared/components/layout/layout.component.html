@@ -1,0 +1,38 @@
+<div class="layout-container">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-title">LicitaTrack</span>
+      <span class="brand-subtitle">Gestão de Licitações</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a routerLink="/processos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">Processos</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/processos/novo" routerLinkActive="active">
+            <span class="nav-icon">➕</span>
+            <span class="nav-text">Novo Processo</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="header">
+      <div class="header-content">
+        <h1 class="header-title">Prefeitura Municipal — LicitaTrack</h1>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+

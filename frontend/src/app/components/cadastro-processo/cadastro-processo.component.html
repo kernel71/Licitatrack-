@@ -1,0 +1,205 @@
+<div class="page-container">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Navegação estrutural">
+    <span class="breadcrumb-item">Início</span>
+    <span class="separator">/</span>
+    <a routerLink="/processos" class="breadcrumb-item breadcrumb-link">Processos licitatórios</a>
+    <span class="separator">/</span>
+    <span class="breadcrumb-item active">Novo processo</span>
+  </nav>
+
+ 
+  <div class="page-header">
+    <div class="header-titles">
+      <h2 class="page-title">Novo processo licitatório</h2>
+      <p class="page-subtitle">Preencha os dados abaixo para registrar um novo processo no sistema</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/processos" class="btn btn-secondary">
+        <span>←</span> Voltar para a lista
+      </a>
+    </div>
+  </div>
+
+  
+  <div class="card form-card">
+    @if (errorMessage()) {
+      <div class="alert alert-danger" role="alert">
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-text">{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-grid">
+       
+        <div class="form-group">
+          <label for="numero" class="form-label">
+            Número do processo <span class="required-asterisk">*</span>
+          </label>
+          <input
+            id="numero"
+            type="text"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('numero')"
+            formControlName="numero"
+            placeholder="Ex: 001/2026"
+            maxlength="50"
+          />
+          @if (isFieldInvalid('numero')) {
+            <div class="field-error">
+              @if (form.get('numero')?.errors?.['required']) {
+                <span>O número do processo é obrigatório.</span>
+              }
+              @if (form.get('numero')?.errors?.['pattern']) {
+                <span>Informe o número no formato 001/2026.</span>
+              }
+              @if (form.get('numero')?.errors?.['maxlength']) {
+                <span>Máximo de 50 caracteres permitido.</span>
+              }
+            </div>
+          }
+        </div>
+
+        
+        <div class="form-group">
+          <label for="modalidade" class="form-label">
+            Modalidade <span class="required-asterisk">*</span>
+          </label>
+          <input
+            id="modalidade"
+            type="text"
+            list="modalidades-list"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('modalidade')"
+            formControlName="modalidade"
+            placeholder="Ex: Pregão Eletrônico"
+            maxlength="50"
+          />
+          <datalist id="modalidades-list">
+            @for (m of modalidadesComuns; track m) {
+              <option [value]="m"></option>
+            }
+          </datalist>
+          @if (isFieldInvalid('modalidade')) {
+            <div class="field-error">
+              @if (form.get('modalidade')?.errors?.['required']) {
+                <span>A modalidade é obrigatória.</span>
+              }
+              @if (form.get('modalidade')?.errors?.['maxlength']) {
+                <span>Máximo de 50 caracteres permitido.</span>
+              }
+            </div>
+          }
+        </div>
+
+        
+        <div class="form-group">
+          <label for="secretaria" class="form-label">
+            Secretaria solicitante <span class="required-asterisk">*</span>
+          </label>
+          <input
+            id="secretaria"
+            type="text"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('secretaria')"
+            formControlName="secretaria"
+            placeholder="Ex: Secretaria de Saúde"
+            maxlength="100"
+          />
+          @if (isFieldInvalid('secretaria')) {
+            <div class="field-error">
+              @if (form.get('secretaria')?.errors?.['required']) {
+                <span>A secretaria é obrigatória.</span>
+              }
+              @if (form.get('secretaria')?.errors?.['maxlength']) {
+                <span>Máximo de 100 caracteres permitido.</span>
+              }
+            </div>
+          }
+        </div>
+
+       
+        <div class="form-group">
+          <label for="dataAbertura" class="form-label">
+            Data de abertura <span class="required-asterisk">*</span>
+          </label>
+          <input
+            id="dataAbertura"
+            type="date"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('dataAbertura')"
+            formControlName="dataAbertura"
+          />
+          @if (isFieldInvalid('dataAbertura')) {
+            <div class="field-error">
+              <span>A data de abertura é obrigatória.</span>
+            </div>
+          }
+        </div>
+
+        
+        <div class="form-group">
+          <label for="situacao" class="form-label">
+            Situação <span class="required-asterisk">*</span>
+          </label>
+          <select
+            id="situacao"
+            class="form-control form-select"
+            [class.is-invalid]="isFieldInvalid('situacao')"
+            formControlName="situacao"
+          >
+            @for (sit of situacoesDisponiveis; track sit) {
+              <option [value]="sit">{{ sit }}</option>
+            }
+          </select>
+          @if (isFieldInvalid('situacao')) {
+            <div class="field-error">
+              <span>A situação é obrigatória.</span>
+            </div>
+          }
+        </div>
+
+        
+        <div class="form-group full-width">
+          <label for="objeto" class="form-label">
+            Objeto da licitação <span class="required-asterisk">*</span>
+          </label>
+          <textarea
+            id="objeto"
+            rows="4"
+            class="form-control textarea"
+            [class.is-invalid]="isFieldInvalid('objeto')"
+            formControlName="objeto"
+            placeholder="Descreva detalhadamente o objeto da contratação ou aquisição..."
+          ></textarea>
+          @if (isFieldInvalid('objeto')) {
+            <div class="field-error">
+              <span>O objeto do processo é obrigatório.</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      
+      <div class="form-actions">
+        <a routerLink="/processos" class="btn btn-secondary">
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            <span>Salvando...</span>
+          } @else {
+            <span>💾</span>
+            <span>Salvar processo</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
