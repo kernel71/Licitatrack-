@@ -119,4 +119,23 @@ public class ProcessoRepository
 
         return processo;
     }
+
+    public async Task<bool> AtualizarSituacao(int id, string novaSituacao)
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        const string sql = @"
+            UPDATE processos_licitatorios
+            SET situacao = @Situacao
+            WHERE id = @Id;
+        ";
+
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Situacao", novaSituacao);
+        command.Parameters.AddWithValue("@Id", id);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
 }

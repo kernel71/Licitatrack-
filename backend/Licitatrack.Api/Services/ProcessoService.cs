@@ -77,4 +77,38 @@ public class ProcessoService
             DataCadastro = criado.DataCadastro
         };
     }
+
+    private static readonly HashSet<string> SituacoesPermitidas = new(StringComparer.Ordinal)
+    {
+        "Planejado",
+        "Em andamento",
+        "Concluido",
+        "Cancelado"
+    };
+
+    public async Task<ProcessoResponseDTO?> AtualizarSituacao(int id, AtualizarSituacaoDTO dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Situacao) || !SituacoesPermitidas.Contains(dto.Situacao))
+            throw new ArgumentException("Situação inválida. Valores aceitos: Planejado, Em andamento, Concluido, Cancelado.");
+
+        var processo = await _repository.BuscarPorId(id);
+        if (processo == null)
+            return null;
+
+        await _repository.AtualizarSituacao(id, dto.Situacao);
+
+        processo.Situacao = dto.Situacao;
+
+        return new ProcessoResponseDTO
+        {
+            Id = processo.Id,
+            Numero = processo.Numero,
+            Objeto = processo.Objeto,
+            Modalidade = processo.Modalidade,
+            Secretaria = processo.Secretaria,
+            DataAbertura = processo.DataAbertura,
+            Situacao = processo.Situacao,
+            DataCadastro = processo.DataCadastro
+        };
+    }
 }

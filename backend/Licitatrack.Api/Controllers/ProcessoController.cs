@@ -52,4 +52,27 @@ public class ProcessosController : ControllerBase
             return Conflict(new { mensagem = $"Já existe um processo com o número '{dto.Numero}'." });
         }
     }
+
+    [HttpPatch("{id}/situacao")]
+    public async Task<ActionResult<ProcessoResponseDTO>> AtualizarSituacao(int id, [FromBody] AtualizarSituacaoDTO dto)
+    {
+        if (id <= 0)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var atualizado = await _service.AtualizarSituacao(id, dto);
+            if (atualizado == null)
+                return NotFound();
+
+            return Ok(atualizado);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
 }

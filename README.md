@@ -44,7 +44,7 @@ licitatrack/
 │           └── shared/
 │               └── components/
 │                   └── layout/
-├── database/                     # Scripts SQL a versionar
+├── database/                     # Scripts SQL para criação do banco
 ├── .gitignore
 └── README.md
 ```

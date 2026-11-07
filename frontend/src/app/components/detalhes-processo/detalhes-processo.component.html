@@ -110,4 +110,63 @@
       </div>
     }
   </div>
+
+  @if (processo()) {
+    <div class="card card-secao">
+      <div class="secao-header">
+        <h3 class="secao-title">Atualizar situação</h3>
+        <p class="secao-subtitle">Selecione uma nova situação para o processo licitatório</p>
+      </div>
+
+      @if (sucessoUpdateMessage()) {
+        <div class="alert alert-success" role="alert">
+          <span class="alert-icon">✅</span>
+          <span class="alert-text">{{ sucessoUpdateMessage() }}</span>
+          <button type="button" class="alert-close" (click)="sucessoUpdateMessage.set(null)" aria-label="Fechar">✕</button>
+        </div>
+      }
+
+      @if (updateErrorMessage()) {
+        <div class="alert alert-danger" role="alert">
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-text">{{ updateErrorMessage() }}</span>
+          <button type="button" class="alert-close" (click)="updateErrorMessage.set(null)" aria-label="Fechar">✕</button>
+        </div>
+      }
+
+      <div class="atualizar-body">
+        <div class="form-group">
+          <label for="select-situacao" class="form-label">Situação do processo</label>
+          <select
+            id="select-situacao"
+            class="form-select"
+            [value]="novaSituacao()"
+            (change)="onSituacaoChange($event)"
+            [disabled]="isUpdating()"
+          >
+            @for (sit of situacoesDisponiveis; track sit.valor) {
+              <option [value]="sit.valor">{{ sit.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-actions-inline">
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="isUpdating() || !novaSituacao() || novaSituacao() === processo()?.situacao"
+            (click)="salvarSituacao()"
+          >
+            @if (isUpdating()) {
+              <span class="btn-spinner"></span>
+              <span>Salvando alteração...</span>
+            } @else {
+              <span>💾</span>
+              <span>Salvar alteração</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -19,6 +19,10 @@ export class ProcessoService {
     return this.http.get<ProcessoLicitatorio>(`${this.baseUrl}/${id}`);
   }
 
+  atualizarSituacao(id: number, situacao: string): Observable<ProcessoLicitatorio> {
+    return this.http.patch<ProcessoLicitatorio>(`${this.baseUrl}/${id}/situacao`, { situacao });
+  }
+
   criar(dto: CriarProcessoDTO): Observable<ProcessoLicitatorio> {
     return this.http.post<ProcessoLicitatorio>(this.baseUrl, dto);
   }
