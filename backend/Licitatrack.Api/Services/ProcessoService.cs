@@ -13,9 +13,9 @@ public class ProcessoService
         _repository = repository;
     }
 
-    public async Task<List<ProcessoResponseDTO>> ListarAsync()
+    public async Task<List<ProcessoResponseDTO>> Listar()
     {
-        var processos = await _repository.ListarAsync();
+        var processos = await _repository.Listar();
 
         return processos.Select(p => new ProcessoResponseDTO
         {
@@ -30,7 +30,27 @@ public class ProcessoService
         }).ToList();
     }
 
-    public async Task<ProcessoResponseDTO> CriarAsync(CriarProcessoDTO dto)
+    public async Task<ProcessoResponseDTO?> BuscarPorId(int id)
+    {
+        var processo = await _repository.BuscarPorId(id);
+
+        if (processo == null)
+            return null;
+
+        return new ProcessoResponseDTO
+        {
+            Id = processo.Id,
+            Numero = processo.Numero,
+            Objeto = processo.Objeto,
+            Modalidade = processo.Modalidade,
+            Secretaria = processo.Secretaria,
+            DataAbertura = processo.DataAbertura,
+            Situacao = processo.Situacao,
+            DataCadastro = processo.DataCadastro
+        };
+    }
+
+    public async Task<ProcessoResponseDTO> Criar(CriarProcessoDTO dto)
     {
         var processo = new ProcessoLicitatorio
         {
@@ -43,7 +63,7 @@ public class ProcessoService
             DataCadastro = DateTime.UtcNow
         };
 
-        var criado = await _repository.InserirAsync(processo);
+        var criado = await _repository.Inserir(processo);
 
         return new ProcessoResponseDTO
         {

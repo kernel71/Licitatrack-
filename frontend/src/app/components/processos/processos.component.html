@@ -1,12 +1,12 @@
 <div class="page-container">
-  <!-- Breadcrumb -->
+  
   <nav class="breadcrumb" aria-label="Navegação estrutural">
     <span class="breadcrumb-item">Início</span>
     <span class="separator">/</span>
     <span class="breadcrumb-item active">Processos licitatórios</span>
   </nav>
 
-  <!-- Mensagem de Confirmação de Sucesso -->
+  
   @if (sucessoMessage()) {
     <div class="alert alert-success" role="alert">
       <span class="alert-icon">✅</span>
@@ -15,7 +15,6 @@
     </div>
   }
 
-  <!-- Cabeçalho da Página -->
   <div class="page-header">
     <div class="header-titles">
       <h2 class="page-title">Processos licitatórios</h2>
@@ -29,9 +28,9 @@
     </div>
   </div>
 
-  <!-- Card Principal -->
+
   <div class="card">
-    <!-- Estado de Carregamento -->
+   
     @if (isLoading()) {
       <div class="state-container loading-state">
         <div class="spinner"></div>
@@ -39,7 +38,6 @@
       </div>
     }
 
-    <!-- Estado de Erro -->
     @else if (errorMessage()) {
       <div class="state-container error-state">
         <div class="state-icon error-icon">⚠️</div>
@@ -51,7 +49,7 @@
       </div>
     }
 
-    <!-- Estado Vazio (quando não há processos) -->
+    
     @else if (processos().length === 0) {
       <div class="state-container empty-state">
         <div class="state-icon empty-icon">📋</div>
@@ -63,7 +61,6 @@
       </div>
     }
 
-    <!-- Tabela com Dados -->
     @else {
       <div class="table-responsive">
         <table class="data-table">
@@ -79,8 +76,24 @@
           </thead>
           <tbody>
             @for (item of processos(); track item.id) {
-              <tr>
-                <td class="font-medium text-primary">{{ item.numero }}</td>
+              <tr
+                class="clickable-row"
+                tabindex="0"
+                role="link"
+                (click)="abrirDetalhes(item.id)"
+                (keydown.enter)="abrirDetalhes(item.id)"
+                [attr.aria-label]="'Visualizar detalhes do processo ' + item.numero"
+              >
+                <td class="font-medium text-primary">
+                  <a
+                    [routerLink]="['/processos', item.id]"
+                    class="processo-link"
+                    tabindex="-1"
+                    (click)="$event.stopPropagation()"
+                  >
+                    {{ item.numero }}
+                  </a>
+                </td>
                 <td class="objeto-cell" [title]="item.objeto">{{ item.objeto }}</td>
                 <td>{{ item.modalidade }}</td>
                 <td>{{ item.secretaria }}</td>

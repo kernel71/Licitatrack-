@@ -15,6 +15,10 @@ export class ProcessoService {
     return this.http.get<ProcessoLicitatorio[]>(this.baseUrl);
   }
 
+  buscarPorId(id: number): Observable<ProcessoLicitatorio> {
+    return this.http.get<ProcessoLicitatorio>(`${this.baseUrl}/${id}`);
+  }
+
   criar(dto: CriarProcessoDTO): Observable<ProcessoLicitatorio> {
     return this.http.post<ProcessoLicitatorio>(this.baseUrl, dto);
   }

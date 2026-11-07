@@ -1,0 +1,113 @@
+<div class="page-container">
+  <nav class="breadcrumb" aria-label="Navegação estrutural">
+    <span class="breadcrumb-item">Início</span>
+    <span class="separator">/</span>
+    <a routerLink="/processos" class="breadcrumb-item breadcrumb-link">Processos licitatórios</a>
+    <span class="separator">/</span>
+    <span class="breadcrumb-item active">Detalhes do processo</span>
+  </nav>
+
+  <div class="page-header">
+    <div class="header-titles">
+      @if (processo()) {
+        <h2 class="page-title">Processo nº {{ processo()?.numero }}</h2>
+        <p class="page-subtitle">Informações completas e situação atual do processo licitatório</p>
+      } @else {
+        <h2 class="page-title">Detalhes do processo</h2>
+        <p class="page-subtitle">Consulta de informações do processo licitatório</p>
+      }
+    </div>
+    <div class="header-actions">
+      <a routerLink="/processos" class="btn btn-secondary">
+        <span>←</span> Voltar para a listagem
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    @if (isLoading()) {
+      <div class="state-container loading-state">
+        <div class="spinner"></div>
+        <p class="state-text">Carregando detalhes do processo...</p>
+      </div>
+    }
+
+    @else if (invalidId()) {
+      <div class="state-container error-state">
+        <div class="state-icon error-icon">⚠️</div>
+        <h3 class="state-title">Identificador inválido</h3>
+        <p class="state-description">O identificador de processo informado na rota não é válido.</p>
+        <a routerLink="/processos" class="btn btn-secondary">
+          <span>←</span> Voltar para a listagem
+        </a>
+      </div>
+    }
+
+    @else if (notFound()) {
+      <div class="state-container not-found-state">
+        <div class="state-icon not-found-icon">🔍</div>
+        <h3 class="state-title">Processo não encontrado</h3>
+        <p class="state-description">Não localizamos nenhum processo licitatório cadastrado com o identificador informado.</p>
+        <a routerLink="/processos" class="btn btn-secondary">
+          <span>←</span> Voltar para a listagem
+        </a>
+      </div>
+    }
+
+    @else if (errorMessage()) {
+      <div class="state-container error-state">
+        <div class="state-icon error-icon">⚠️</div>
+        <h3 class="state-title">Erro ao carregar dados</h3>
+        <p class="state-description">{{ errorMessage() }}</p>
+        <button type="button" class="btn btn-secondary" (click)="tentarNovamente()">
+          <span>🔄</span> Tentar novamente
+        </button>
+      </div>
+    }
+
+    @else if (processo()) {
+      @let item = processo()!;
+      <div class="detalhes-content">
+        <div class="detalhes-header">
+          <div class="numero-wrapper">
+            <span class="label-header">Número do processo</span>
+            <span class="valor-numero">{{ item.numero }}</span>
+          </div>
+          <div class="situacao-wrapper">
+            <span class="label-header">Situação atual</span>
+            <span class="badge" [ngClass]="getSituacaoClass(item.situacao)">
+              {{ item.situacao }}
+            </span>
+          </div>
+        </div>
+
+        <div class="detalhes-grid">
+          <div class="info-item">
+            <span class="info-label">Modalidade</span>
+            <span class="info-value">{{ item.modalidade }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Secretaria solicitante</span>
+            <span class="info-value">{{ item.secretaria }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Data de abertura</span>
+            <span class="info-value">{{ item.dataAbertura | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Data de cadastro</span>
+            <span class="info-value">{{ item.dataCadastro | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="info-item full-width">
+            <span class="info-label">Objeto da licitação</span>
+            <div class="objeto-text">{{ item.objeto }}</div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

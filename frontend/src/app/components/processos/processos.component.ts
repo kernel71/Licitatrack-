@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { ProcessoService } from '../../services/processo.service';
 import { ProcessoLicitatorio } from '../../models/processo.model';
@@ -11,6 +11,7 @@ import { ProcessoLicitatorio } from '../../models/processo.model';
   styleUrl: './processos.component.scss'
 })
 export class ProcessosComponent implements OnInit {
+  private readonly router = inject(Router);
   private readonly processoService = inject(ProcessoService);
 
   processos = signal<ProcessoLicitatorio[]>([]);
@@ -63,5 +64,9 @@ export class ProcessosComponent implements OnInit {
       default:
         return 'badge-default';
     }
+  }
+
+  abrirDetalhes(id: number): void {
+    this.router.navigate(['/processos', id]);
   }
 }

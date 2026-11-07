@@ -19,8 +19,21 @@ public class ProcessosController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ProcessoResponseDTO>>> Listar()
     {
-        var processos = await _service.ListarAsync();
+        var processos = await _service.Listar();
         return Ok(processos);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProcessoResponseDTO>> BuscarPorId(int id)
+    {
+        if (id <= 0)
+            return BadRequest();
+
+        var processo = await _service.BuscarPorId(id);
+        if (processo == null)
+            return NotFound();
+
+        return Ok(processo);
     }
 
     [HttpPost]
@@ -31,7 +44,7 @@ public class ProcessosController : ControllerBase
 
         try
         {
-            var criado = await _service.CriarAsync(dto);
+            var criado = await _service.Criar(dto);
             return CreatedAtAction(nameof(Listar), new { }, criado);
         }
         catch (MySqlException ex) when (ex.Number == 1062)

@@ -14,7 +14,7 @@ public class ProcessoRepository
                 "String de conexão não configurada.");
     }
 
-    public async Task<List<ProcessoLicitatorio>> ListarAsync()
+    public async Task<List<ProcessoLicitatorio>> Listar()
     {
         var processos = new List<ProcessoLicitatorio>();
 
@@ -56,7 +56,44 @@ public class ProcessoRepository
         return processos;
     }
 
-    public async Task<ProcessoLicitatorio> InserirAsync(ProcessoLicitatorio processo)
+    public async Task<ProcessoLicitatorio?> BuscarPorId(int id)
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        const string sql = @"
+            SELECT
+                id, numero, objeto, modalidade,
+                secretaria, data_abertura, situacao,
+                data_cadastro
+            FROM processos_licitatorios
+            WHERE id = @Id;
+        ";
+
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Id", id);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            return new ProcessoLicitatorio
+            {
+                Id = reader.GetInt32("id"),
+                Numero = reader.GetString("numero"),
+                Objeto = reader.GetString("objeto"),
+                Modalidade = reader.GetString("modalidade"),
+                Secretaria = reader.GetString("secretaria"),
+                DataAbertura = reader.GetDateTime("data_abertura"),
+                Situacao = reader.GetString("situacao"),
+                DataCadastro = reader.GetDateTime("data_cadastro")
+            };
+        }
+
+        return null;
+    }
+
+    public async Task<ProcessoLicitatorio> Inserir(ProcessoLicitatorio processo)
     {
         await using var connection = new MySqlConnection(_connectionString);
         await connection.OpenAsync();
