@@ -168,5 +168,64 @@
         </div>
       </div>
     </div>
+
+    <div class="card card-secao">
+      <div class="secao-header">
+        <h3 class="secao-title">Histórico de alterações</h3>
+        <p class="secao-subtitle">Registro cronológico das alterações de situação deste processo</p>
+      </div>
+
+      @if (isLoadingHistorico()) {
+        <div class="historico-loading">
+          <div class="spinner"></div>
+          <p class="state-text">Carregando histórico de alterações...</p>
+        </div>
+      }
+
+      @else if (historicoError()) {
+        <div class="alert alert-danger" role="alert">
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-text">{{ historicoError() }}</span>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="processoId && carregarHistorico(processoId)">
+            Tentar novamente
+          </button>
+        </div>
+      }
+
+      @else if (historico().length === 0) {
+        <div class="historico-empty">
+          <p class="empty-text">Nenhuma alteração registrada até o momento.</p>
+        </div>
+      }
+
+      @else {
+        <div class="timeline">
+          @for (item of historico(); track item.id) {
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <div class="timeline-transicao">
+                    @if (item.situacaoAnterior) {
+                      <span class="badge" [ngClass]="getSituacaoClass(item.situacaoAnterior)">
+                        {{ item.situacaoAnterior }}
+                      </span>
+                      <span class="seta-transicao">→</span>
+                    }
+                    <span class="badge" [ngClass]="getSituacaoClass(item.situacaoNova)">
+                      {{ item.situacaoNova }}
+                    </span>
+                  </div>
+                  <span class="timeline-date">{{ item.dataAlteracao | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                @if (item.observacao) {
+                  <p class="timeline-obs">{{ item.observacao }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
   }
 </div>

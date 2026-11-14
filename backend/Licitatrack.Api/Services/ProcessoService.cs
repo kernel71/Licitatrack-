@@ -95,9 +95,11 @@ public class ProcessoService
         if (processo == null)
             return null;
 
-        await _repository.AtualizarSituacao(id, dto.Situacao);
-
-        processo.Situacao = dto.Situacao;
+        if (processo.Situacao != dto.Situacao)
+        {
+            await _repository.AtualizarSituacao(id, processo.Situacao, dto.Situacao, dto.Observacao);
+            processo.Situacao = dto.Situacao;
+        }
 
         return new ProcessoResponseDTO
         {
@@ -110,5 +112,24 @@ public class ProcessoService
             Situacao = processo.Situacao,
             DataCadastro = processo.DataCadastro
         };
+    }
+
+    public async Task<List<HistoricoProcessoResponseDTO>?> ListarHistorico(int processoId)
+    {
+        var processo = await _repository.BuscarPorId(processoId);
+        if (processo == null)
+            return null;
+
+        var historico = await _repository.ListarHistorico(processoId);
+
+        return historico.Select(h => new HistoricoProcessoResponseDTO
+        {
+            Id = h.Id,
+            ProcessoId = h.ProcessoId,
+            SituacaoAnterior = h.SituacaoAnterior,
+            SituacaoNova = h.SituacaoNova,
+            Observacao = h.Observacao,
+            DataAlteracao = h.DataAlteracao
+        }).ToList();
     }
 }

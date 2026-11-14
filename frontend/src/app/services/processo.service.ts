@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ProcessoLicitatorio, CriarProcessoDTO } from '../models/processo.model';
+import { ProcessoLicitatorio, CriarProcessoDTO, HistoricoProcesso } from '../models/processo.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,10 @@ export class ProcessoService {
 
   buscarPorId(id: number): Observable<ProcessoLicitatorio> {
     return this.http.get<ProcessoLicitatorio>(`${this.baseUrl}/${id}`);
+  }
+
+  listarHistorico(id: number): Observable<HistoricoProcesso[]> {
+    return this.http.get<HistoricoProcesso[]>(`${this.baseUrl}/${id}/historico`);
   }
 
   atualizarSituacao(id: number, situacao: string): Observable<ProcessoLicitatorio> {

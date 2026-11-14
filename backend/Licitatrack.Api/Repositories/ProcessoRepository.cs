@@ -120,22 +120,91 @@ public class ProcessoRepository
         return processo;
     }
 
-    public async Task<bool> AtualizarSituacao(int id, string novaSituacao)
+    public async Task<bool> AtualizarSituacao(int id, string? situacaoAnterior, string novaSituacao, string? observacao = null)
     {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            const string sqlUpdate = @"
+                UPDATE processos_licitatorios
+                SET situacao = @Situacao
+                WHERE id = @Id;
+            ";
+
+            await using var updateCommand = new MySqlCommand(sqlUpdate, connection, transaction);
+            updateCommand.Parameters.AddWithValue("@Situacao", novaSituacao);
+            updateCommand.Parameters.AddWithValue("@Id", id);
+
+            var rowsAffected = await updateCommand.ExecuteNonQueryAsync();
+
+            if (situacaoAnterior != novaSituacao)
+            {
+                const string sqlInsertHistorico = @"
+                    INSERT INTO historico_processos
+                        (processo_id, situacao_anterior, situacao_nova, observacao, data_alteracao)
+                    VALUES
+                        (@ProcessoId, @SituacaoAnterior, @SituacaoNova, @Observacao, @DataAlteracao);
+                ";
+
+                await using var historyCommand = new MySqlCommand(sqlInsertHistorico, connection, transaction);
+                historyCommand.Parameters.AddWithValue("@ProcessoId", id);
+                historyCommand.Parameters.AddWithValue("@SituacaoAnterior", (object?)situacaoAnterior ?? DBNull.Value);
+                historyCommand.Parameters.AddWithValue("@SituacaoNova", novaSituacao);
+                historyCommand.Parameters.AddWithValue("@Observacao", (object?)observacao ?? DBNull.Value);
+                historyCommand.Parameters.AddWithValue("@DataAlteracao", DateTime.UtcNow);
+
+                await historyCommand.ExecuteNonQueryAsync();
+            }
+
+            await transaction.CommitAsync();
+            return rowsAffected > 0;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<List<HistoricoProcesso>> ListarHistorico(int processoId)
+    {
+        var historico = new List<HistoricoProcesso>();
+
         await using var connection = new MySqlConnection(_connectionString);
         await connection.OpenAsync();
 
         const string sql = @"
-            UPDATE processos_licitatorios
-            SET situacao = @Situacao
-            WHERE id = @Id;
+            SELECT
+                id, processo_id, situacao_anterior, situacao_nova,
+                observacao, data_alteracao
+            FROM historico_processos
+            WHERE processo_id = @ProcessoId
+            ORDER BY data_alteracao DESC, id DESC;
         ";
 
         await using var command = new MySqlCommand(sql, connection);
-        command.Parameters.AddWithValue("@Situacao", novaSituacao);
-        command.Parameters.AddWithValue("@Id", id);
+        command.Parameters.AddWithValue("@ProcessoId", processoId);
 
-        var rowsAffected = await command.ExecuteNonQueryAsync();
-        return rowsAffected > 0;
+        await using var reader = await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            var item = new HistoricoProcesso
+            {
+                Id = reader.GetInt32("id"),
+                ProcessoId = reader.GetInt32("processo_id"),
+                SituacaoAnterior = reader.IsDBNull(reader.GetOrdinal("situacao_anterior")) ? null : reader.GetString("situacao_anterior"),
+                SituacaoNova = reader.GetString("situacao_nova"),
+                Observacao = reader.IsDBNull(reader.GetOrdinal("observacao")) ? null : reader.GetString("observacao"),
+                DataAlteracao = reader.GetDateTime("data_alteracao")
+            };
+
+            historico.Add(item);
+        }
+
+        return historico;
     }
 }

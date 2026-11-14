@@ -20,3 +20,12 @@ export interface CriarProcessoDTO {
   situacao: SituacaoProcesso | string;
 }
 
+export interface HistoricoProcesso {
+  id: number;
+  processoId: number;
+  situacaoAnterior: string | null;
+  situacaoNova: string;
+  observacao: string | null;
+  dataAlteracao: string;
+}
+

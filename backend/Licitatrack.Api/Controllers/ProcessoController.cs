@@ -75,4 +75,17 @@ public class ProcessosController : ControllerBase
             return BadRequest(new { mensagem = ex.Message });
         }
     }
+
+    [HttpGet("{id}/historico")]
+    public async Task<ActionResult<List<HistoricoProcessoResponseDTO>>> ListarHistorico(int id)
+    {
+        if (id <= 0)
+            return BadRequest();
+
+        var historico = await _service.ListarHistorico(id);
+        if (historico == null)
+            return NotFound();
+
+        return Ok(historico);
+    }
 }

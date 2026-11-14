@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { ProcessoService } from '../../services/processo.service';
@@ -18,6 +18,25 @@ export class ProcessosComponent implements OnInit {
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
   sucessoMessage = signal<string | null>(null);
+
+  filtroNumero = signal<string>('');
+  filtroSituacao = signal<string>('');
+
+  processosFiltrados = computed(() => {
+    const lista = this.processos();
+    const termo = this.filtroNumero().trim().toLowerCase();
+    const situacao = this.filtroSituacao();
+
+    return lista.filter(p => {
+      const matchNumero = !termo || p.numero.toLowerCase().includes(termo);
+      const matchSituacao = !situacao || p.situacao.toLowerCase() === situacao.toLowerCase();
+      return matchNumero && matchSituacao;
+    });
+  });
+
+  temFiltroAtivo = computed(() => {
+    return this.filtroNumero().trim().length > 0 || this.filtroSituacao().length > 0;
+  });
 
   ngOnInit(): void {
     const navState = history.state;
@@ -68,5 +87,20 @@ export class ProcessosComponent implements OnInit {
 
   abrirDetalhes(id: number): void {
     this.router.navigate(['/processos', id]);
+  }
+
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroNumero.set(target.value);
+  }
+
+  onSituacaoFilterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.filtroSituacao.set(target.value);
+  }
+
+  limparFiltros(): void {
+    this.filtroNumero.set('');
+    this.filtroSituacao.set('');
   }
 }

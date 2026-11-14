@@ -9,4 +9,6 @@ public class AtualizarSituacaoDTO
         "^(Planejado|Em andamento|Concluido|Cancelado)$",
         ErrorMessage = "Situação inválida. Valores aceitos: Planejado, Em andamento, Concluido, Cancelado.")]
     public string Situacao { get; set; } = string.Empty;
+
+    public string? Observacao { get; set; }
 }

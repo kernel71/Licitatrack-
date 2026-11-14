@@ -62,52 +62,106 @@
     }
 
     @else {
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Número</th>
-              <th>Objeto</th>
-              <th>Modalidade</th>
-              <th>Secretaria</th>
-              <th>Data de abertura</th>
-              <th>Situação</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of processos(); track item.id) {
-              <tr
-                class="clickable-row"
-                tabindex="0"
-                role="link"
-                (click)="abrirDetalhes(item.id)"
-                (keydown.enter)="abrirDetalhes(item.id)"
-                [attr.aria-label]="'Visualizar detalhes do processo ' + item.numero"
-              >
-                <td class="font-medium text-primary">
-                  <a
-                    [routerLink]="['/processos', item.id]"
-                    class="processo-link"
-                    tabindex="-1"
-                    (click)="$event.stopPropagation()"
-                  >
-                    {{ item.numero }}
-                  </a>
-                </td>
-                <td class="objeto-cell" [title]="item.objeto">{{ item.objeto }}</td>
-                <td>{{ item.modalidade }}</td>
-                <td>{{ item.secretaria }}</td>
-                <td>{{ item.dataAbertura | date:'dd/MM/yyyy' }}</td>
-                <td>
-                  <span class="badge" [ngClass]="getSituacaoClass(item.situacao)">
-                    {{ item.situacao }}
-                  </span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="filters-bar">
+        <div class="filter-item filter-search">
+          <label for="filtro-numero" class="filter-label">Pesquisar por número</label>
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input
+              id="filtro-numero"
+              type="text"
+              class="filter-input"
+              placeholder="Ex: 001/2026"
+              [value]="filtroNumero()"
+              (input)="onSearchInput($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filter-item filter-select">
+          <label for="filtro-situacao" class="filter-label">Situação</label>
+          <select
+            id="filtro-situacao"
+            class="filter-select-control"
+            [value]="filtroSituacao()"
+            (change)="onSituacaoFilterChange($event)"
+          >
+            <option value="">Todas as situações</option>
+            <option value="Planejado">Planejado</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluido">Concluído</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        @if (temFiltroAtivo()) {
+          <div class="filter-actions">
+            <button type="button" class="btn-clear" (click)="limparFiltros()">
+              <span>✕</span> Limpar filtros
+            </button>
+          </div>
+        }
       </div>
+
+      @if (processosFiltrados().length === 0) {
+        <div class="state-container empty-state">
+          <div class="state-icon empty-icon">🔍</div>
+          <h3 class="state-title">Nenhum processo encontrado</h3>
+          <p class="state-description">Nenhum processo encontrado para os filtros selecionados.</p>
+          <button type="button" class="btn btn-secondary" (click)="limparFiltros()">
+            <span>✕</span> Limpar filtros
+          </button>
+        </div>
+      }
+
+      @else {
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Objeto</th>
+                <th>Modalidade</th>
+                <th>Secretaria</th>
+                <th>Data de abertura</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of processosFiltrados(); track item.id) {
+                <tr
+                  class="clickable-row"
+                  tabindex="0"
+                  role="link"
+                  (click)="abrirDetalhes(item.id)"
+                  (keydown.enter)="abrirDetalhes(item.id)"
+                  [attr.aria-label]="'Visualizar detalhes do processo ' + item.numero"
+                >
+                  <td class="font-medium text-primary">
+                    <a
+                      [routerLink]="['/processos', item.id]"
+                      class="processo-link"
+                      tabindex="-1"
+                      (click)="$event.stopPropagation()"
+                    >
+                      {{ item.numero }}
+                    </a>
+                  </td>
+                  <td class="objeto-cell" [title]="item.objeto">{{ item.objeto }}</td>
+                  <td>{{ item.modalidade }}</td>
+                  <td>{{ item.secretaria }}</td>
+                  <td>{{ item.dataAbertura | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getSituacaoClass(item.situacao)">
+                      {{ item.situacao }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     }
   </div>
 </div>

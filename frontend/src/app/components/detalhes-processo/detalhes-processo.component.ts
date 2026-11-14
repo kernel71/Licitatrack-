@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { ProcessoService } from '../../services/processo.service';
-import { ProcessoLicitatorio } from '../../models/processo.model';
+import { ProcessoLicitatorio, HistoricoProcesso } from '../../models/processo.model';
 
 @Component({
   selector: 'app-detalhes-processo',
@@ -25,6 +25,10 @@ export class DetalhesProcessoComponent implements OnInit {
   sucessoUpdateMessage = signal<string | null>(null);
   updateErrorMessage = signal<string | null>(null);
 
+  historico = signal<HistoricoProcesso[]>([]);
+  isLoadingHistorico = signal<boolean>(false);
+  historicoError = signal<string | null>(null);
+
   readonly situacoesDisponiveis = [
     { valor: 'Planejado', label: 'Planejado' },
     { valor: 'Em andamento', label: 'Em andamento' },
@@ -32,7 +36,7 @@ export class DetalhesProcessoComponent implements OnInit {
     { valor: 'Cancelado', label: 'Cancelado' }
   ];
 
-  private processoId: number | null = null;
+  processoId: number | null = null;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -61,6 +65,7 @@ export class DetalhesProcessoComponent implements OnInit {
         this.processo.set(dados);
         this.novaSituacao.set(dados.situacao);
         this.isLoading.set(false);
+        this.carregarHistorico(id);
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -72,6 +77,28 @@ export class DetalhesProcessoComponent implements OnInit {
           this.errorMessage.set('Erro interno no servidor (500) ao carregar os detalhes do processo.');
         } else {
           this.errorMessage.set(`Não foi possível carregar os detalhes do processo (HTTP ${err.status || 'erro'}).`);
+        }
+      }
+    });
+  }
+
+  carregarHistorico(id: number): void {
+    this.isLoadingHistorico.set(true);
+    this.historicoError.set(null);
+
+    this.processoService.listarHistorico(id).subscribe({
+      next: (dados) => {
+        this.historico.set(dados || []);
+        this.isLoadingHistorico.set(false);
+      },
+      error: (err) => {
+        this.isLoadingHistorico.set(false);
+        if (err.status === 0) {
+          this.historicoError.set('Falha de conexão com o servidor ao consultar o histórico.');
+        } else if (err.status >= 500) {
+          this.historicoError.set('Erro interno no servidor ao carregar o histórico de alterações.');
+        } else {
+          this.historicoError.set(`Não foi possível carregar o histórico (HTTP ${err.status || 'erro'}).`);
         }
       }
     });
@@ -100,6 +127,7 @@ export class DetalhesProcessoComponent implements OnInit {
         this.novaSituacao.set(processoAtualizado.situacao);
         this.sucessoUpdateMessage.set('Situação atualizada com sucesso!');
         this.isUpdating.set(false);
+        this.carregarHistorico(this.processoId!);
       },
       error: (err) => {
         this.isUpdating.set(false);
