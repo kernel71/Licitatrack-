@@ -199,7 +199,7 @@ public class ProcessoRepository
                 SituacaoAnterior = reader.IsDBNull(reader.GetOrdinal("situacao_anterior")) ? null : reader.GetString("situacao_anterior"),
                 SituacaoNova = reader.GetString("situacao_nova"),
                 Observacao = reader.IsDBNull(reader.GetOrdinal("observacao")) ? null : reader.GetString("observacao"),
-                DataAlteracao = reader.GetDateTime("data_alteracao")
+                DataAlteracao = DateTime.SpecifyKind(reader.GetDateTime("data_alteracao"), DateTimeKind.Utc)
             };
 
             historico.Add(item);
