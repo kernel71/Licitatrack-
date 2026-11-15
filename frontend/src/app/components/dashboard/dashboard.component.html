@@ -1,0 +1,138 @@
+<div class="page-container">
+  <nav class="breadcrumb" aria-label="Navegação estrutural">
+    <span class="breadcrumb-item active">Dashboard</span>
+  </nav>
+
+  <div class="page-header">
+    <div class="header-titles">
+      <h2 class="page-title">Dashboard</h2>
+      <p class="page-subtitle">Visão geral dos processos licitatórios e indicadores de situação</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/processos" class="btn btn-secondary">
+        Ver todos os processos
+      </a>
+      <a routerLink="/processos/novo" class="btn btn-primary">
+        <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Novo processo</span>
+      </a>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="card state-card">
+      <div class="state-container loading-state">
+        <div class="spinner"></div>
+        <p class="state-text">Carregando indicadores do dashboard...</p>
+      </div>
+    </div>
+  }
+
+  @else if (errorMessage()) {
+    <div class="card state-card">
+      <div class="state-container error-state">
+        <div class="state-icon error-icon">
+          <svg class="icon" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <h3 class="state-title">Erro ao carregar dados</h3>
+        <p class="state-description">{{ errorMessage() }}</p>
+        <button type="button" class="btn btn-secondary" (click)="carregarDados()">
+          <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>Tentar novamente</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  @else {
+    @if (totalProcessos() === 0) {
+      <div class="empty-banner">
+        <p class="empty-banner-text">Nenhum processo licitatório cadastrado até o momento no sistema.</p>
+        <a routerLink="/processos/novo" class="empty-banner-link">Cadastrar o primeiro processo →</a>
+      </div>
+    }
+
+    <div class="cards-grid">
+      <div class="metric-card metric-total">
+        <div class="metric-header">
+          <span class="metric-label">Total de processos</span>
+          <div class="metric-icon-badge badge-total">
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value">{{ totalProcessos() }}</div>
+        <p class="metric-description">Processos cadastrados no sistema</p>
+      </div>
+
+      <div class="metric-card metric-planejado">
+        <div class="metric-header">
+          <span class="metric-label">Planejados</span>
+          <div class="metric-icon-badge badge-planejado">
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value">{{ processosPlanejados() }}</div>
+        <p class="metric-description">Aguardando abertura de licitação</p>
+      </div>
+
+      <div class="metric-card metric-andamento">
+        <div class="metric-header">
+          <span class="metric-label">Em andamento</span>
+          <div class="metric-icon-badge badge-andamento">
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value">{{ processosEmAndamento() }}</div>
+        <p class="metric-description">Em execução ou análise</p>
+      </div>
+
+      <div class="metric-card metric-concluido">
+        <div class="metric-header">
+          <span class="metric-label">Concluídos</span>
+          <div class="metric-icon-badge badge-concluido">
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value">{{ processosConcluidos() }}</div>
+        <p class="metric-description">Finalizados e homologados</p>
+      </div>
+
+      <div class="metric-card metric-cancelado">
+        <div class="metric-header">
+          <span class="metric-label">Cancelados</span>
+          <div class="metric-icon-badge badge-cancelado">
+            <svg class="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value">{{ processosCancelados() }}</div>
+        <p class="metric-description">Revogados ou anulados</p>
+      </div>
+    </div>
+  }
+</div>

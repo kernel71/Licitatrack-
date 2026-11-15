@@ -120,6 +120,54 @@ public class ProcessoRepository
         return processo;
     }
 
+    public async Task<bool> Atualizar(ProcessoLicitatorio processo)
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        const string sql = @"
+            UPDATE processos_licitatorios
+            SET
+                numero = @Numero,
+                objeto = @Objeto,
+                modalidade = @Modalidade,
+                secretaria = @Secretaria,
+                data_abertura = @DataAbertura
+            WHERE id = @Id;
+        ";
+
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Numero", processo.Numero);
+        command.Parameters.AddWithValue("@Objeto", processo.Objeto);
+        command.Parameters.AddWithValue("@Modalidade", processo.Modalidade);
+        command.Parameters.AddWithValue("@Secretaria", processo.Secretaria);
+        command.Parameters.AddWithValue("@DataAbertura", processo.DataAbertura);
+        command.Parameters.AddWithValue("@Id", processo.Id);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected > 0;
+    }
+
+    public async Task<bool> ExisteNumero(string numero, int desconsiderarId)
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        const string sql = @"
+            SELECT 1
+            FROM processos_licitatorios
+            WHERE numero = @Numero AND id <> @DesconsiderarId
+            LIMIT 1;
+        ";
+
+        await using var command = new MySqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@Numero", numero);
+        command.Parameters.AddWithValue("@DesconsiderarId", desconsiderarId);
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null;
+    }
+
     public async Task<bool> AtualizarSituacao(int id, string? situacaoAnterior, string novaSituacao, string? observacao = null)
     {
         await using var connection = new MySqlConnection(_connectionString);

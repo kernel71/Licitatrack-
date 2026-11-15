@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Licitatrack.Api.DTOs;
 using Licitatrack.Api.Models;
 using Licitatrack.Api.Repositories;
@@ -75,6 +76,54 @@ public class ProcessoService
             DataAbertura = criado.DataAbertura,
             Situacao     = criado.Situacao,
             DataCadastro = criado.DataCadastro
+        };
+    }
+
+    public async Task<ProcessoResponseDTO?> Atualizar(int id, EditarProcessoDTO dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto));
+
+        if (string.IsNullOrWhiteSpace(dto.Numero) || !Regex.IsMatch(dto.Numero, @"^\d{3}/\d{4}$"))
+            throw new ArgumentException("Informe o número no formato 001/2026.");
+
+        if (string.IsNullOrWhiteSpace(dto.Objeto))
+            throw new ArgumentException("O objeto é obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(dto.Modalidade) || dto.Modalidade.Length > 50)
+            throw new ArgumentException("A modalidade é obrigatória e deve conter no máximo 50 caracteres.");
+
+        if (string.IsNullOrWhiteSpace(dto.Secretaria) || dto.Secretaria.Length > 100)
+            throw new ArgumentException("A secretaria é obrigatória e deve conter no máximo 100 caracteres.");
+
+        if (!dto.DataAbertura.HasValue || dto.DataAbertura.Value == default)
+            throw new ArgumentException("A data de abertura é obrigatória.");
+
+        var processo = await _repository.BuscarPorId(id);
+        if (processo == null)
+            return null;
+
+        if (await _repository.ExisteNumero(dto.Numero, id))
+            throw new InvalidOperationException($"Já existe um processo com o número '{dto.Numero}'.");
+
+        processo.Numero = dto.Numero;
+        processo.Objeto = dto.Objeto;
+        processo.Modalidade = dto.Modalidade;
+        processo.Secretaria = dto.Secretaria;
+        processo.DataAbertura = dto.DataAbertura.Value;
+
+        await _repository.Atualizar(processo);
+
+        return new ProcessoResponseDTO
+        {
+            Id = processo.Id,
+            Numero = processo.Numero,
+            Objeto = processo.Objeto,
+            Modalidade = processo.Modalidade,
+            Secretaria = processo.Secretaria,
+            DataAbertura = processo.DataAbertura,
+            Situacao = processo.Situacao,
+            DataCadastro = processo.DataCadastro
         };
     }
 

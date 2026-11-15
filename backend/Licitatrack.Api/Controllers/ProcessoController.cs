@@ -53,6 +53,37 @@ public class ProcessosController : ControllerBase
         }
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ProcessoResponseDTO>> Atualizar(int id, [FromBody] EditarProcessoDTO dto)
+    {
+        if (id <= 0)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var atualizado = await _service.Atualizar(id, dto);
+            if (atualizado == null)
+                return NotFound();
+
+            return Ok(atualizado);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { mensagem = ex.Message });
+        }
+        catch (MySqlException ex) when (ex.Number == 1062)
+        {
+            return Conflict(new { mensagem = $"Já existe um processo com o número '{dto.Numero}'." });
+        }
+    }
+
     [HttpPatch("{id}/situacao")]
     public async Task<ActionResult<ProcessoResponseDTO>> AtualizarSituacao(int id, [FromBody] AtualizarSituacaoDTO dto)
     {

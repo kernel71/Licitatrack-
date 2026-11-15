@@ -20,6 +20,14 @@ export interface CriarProcessoDTO {
   situacao: SituacaoProcesso | string;
 }
 
+export interface EditarProcessoDTO {
+  numero: string;
+  objeto: string;
+  modalidade: string;
+  secretaria: string;
+  dataAbertura: string;
+}
+
 export interface HistoricoProcesso {
   id: number;
   processoId: number;
